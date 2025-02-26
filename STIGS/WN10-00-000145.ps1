@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    This PowerShell script checks for and disables SMBv1 using "Disable-WindowsOptionalFeature".
+    This PowerShell script enforces DEP (Data Execution Prevention) compliance.
 
 .NOTES
     Author          : Clay Hickman
