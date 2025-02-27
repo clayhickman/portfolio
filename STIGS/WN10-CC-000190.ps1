@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    This PowerShell script disables camera access on the lock screen.
+    This PowerShell script disables autorun for all drive types to prevent unauthorized code execution on removable media.
 
 .NOTES
     Author          : Clay Hickman
