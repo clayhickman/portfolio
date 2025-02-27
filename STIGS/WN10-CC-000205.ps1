@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    This PowerShell script checks for and disables SMBv1 using "Disable-WindowsOptionalFeature".
+    This PowerShell script configures the Windows Telemetry level to limit data collection.
 
 .NOTES
     Author          : Clay Hickman
