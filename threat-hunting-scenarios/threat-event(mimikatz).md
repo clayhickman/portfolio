@@ -1,7 +1,7 @@
 # Threat Event (Credential Dumping with Mimikatz)
 **Unauthorized Execution of Mimikatz**
 
-## Steps the "Bad Actor" took Create Logs and IoCs:
+## Steps the "Bad Actor" took to Create Logs and IoCs:
 1. Download Mimikatz:
   - Obtained mimikatz_trunk.zip from a known repository or a malicious link (e.g., http://malicious-example.com/mimikatz_trunk.zip)
   - Extracted it to a temporary folder: C:\Users\<User>\AppData\Local\Temp\mimikatz\
