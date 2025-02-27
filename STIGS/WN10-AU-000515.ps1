@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    This PowerShell script checks for and disables SMBv1 using "Disable-WindowsOptionalFeature".
+    This PowerShell script secures permissions on the Application Event Log.
 
 .NOTES
     Author          : Clay Hickman
