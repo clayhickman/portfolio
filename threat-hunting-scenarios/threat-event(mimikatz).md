@@ -18,11 +18,6 @@
     ```wevtutil cl Application```
     ```wevtutil cl Security```
     ```wevtutil cl System```
-  - Removes or renames Mimikatz-related artifacts to avoid detection in subsequent scans.
-    ```del "C:\Users\<User>\AppData\Local\Temp\creddump.txt"```
-    ```Remove-Item -Recurse -Force "C:\Users\<User>\AppData\Local\Temp\mimikatz-master"```
-    ```del "C:\Windows\Prefetch\MIMI64.EXE*.pf"```
-
 
 ---
 
@@ -74,7 +69,7 @@ DeviceNetworkEvents
 
 // 5. Check for event log clearing after Mimikatz usage
 DeviceProcessEvents
-| where ProcessCommandLine has_any ("wevtutil cl", "Clear-EventLog")
+| where ProcessCommandLine has_any ("wevtutil", "Clear-EventLog")
 | project Timestamp, DeviceName, AccountName, ProcessCommandLine, ActionType
 ```
 
@@ -82,7 +77,7 @@ DeviceProcessEvents
 
 ## Created By:
 - **Author Name**: Clay Hickman
-- **Author Contact**: https://www.linkedin.com/in/joshmadakor/
+- **Author Contact**: https://www.linkedin.com/in/clay-h-980ba5262
 - **Date**: February 26, 2025
 
 ## Validated By:
