@@ -28,7 +28,7 @@ During a routine security review, the SOC team received indicators that Mimikatz
 ---
 
 ### High-Level Mimikatz related IoC Discovery Plan:
-- **Check `DeviceFileEvents`** for any mimikatz related events
+- **Check `DeviceFileEvents`** for any Mimikatz related events
 - **Check `DeviceProcessEvents`** for any signs of Mimikatz installation / execution, or exfiltration related commands.
 - **Check `DeviceNetworkEvents`** for any signs of outbound connections to remote hosts that may be used for exfiltration purposes.
 
