@@ -1,41 +1,46 @@
 ```lua
-      .-.
-     (   )   Mimikatz — Purrr-loiner of Credentials
-      \ /
-      |=|
-      | |
-     /   \
-    / ___ \
-   | /   \ |
-   |  o o  |    "I can haz LSASS?"
-   (   ~   )
-    \ ~~~ /
-     `---'
-```
+            /\     /\
+           {  `---'  }        Mimikatz
+           {  O   O  }  "I can haz your LSASS secrets?"
+           ~~>  V  <~~
+            \  \|/  /
+             `-----'____
+             /     \    \_
+            {       }\  )_\_   _
+            |  \_/  |/ /  \_\_( )
+             \__/  /(_E     \__/
+               (  /
+                MM
 
+```
 
 # Threat Hunt Report (Credential Dumping with Mimikatz)
 **Unauthorized Execution of Mimikatz**
 
-## Example Scenario:
+## Platforms and Languages Leveraged
+- Windows 10 Virtual Machines (Microsoft Azure)
+- EDR Platform: Microsoft Defender for Endpoint
+- Kusto Query Language (KQL)
+
+## Scenario:
 During a routine security review, the SOC team received indicators that Mimikatz had been downloaded and executed in the environment. Potential use of Mimikatz poses a significant threat, as it can extract credentials from memory (LSASS), leading to privilege escalation and lateral movement across the domain. Additionally, suspicious commands have been ran that would indicate that an individual is attempting to cover their tracks. The goal is to detect and determine the intention behind any Mimikatz usage. Report any findings to management.
 
 ---
 
-## High-Level Mimikatz related IoC Discovery Plan:
-1. Check DeviceFileEvents for any mimikatz related events
-2. Check DeviceProcessEvents for any signs of Mimikatz installation / execution, or exfiltration related commands.
-3. Check DeviceNetworkEvents for any signs of outbound connections to remote hosts that may be used for exfiltration purposes.
+### High-Level Mimikatz related IoC Discovery Plan:
+- **Check `DeviceFileEvents`** for any mimikatz related events
+- **Check `DeviceProcessEvents`** for any signs of Mimikatz installation / execution, or exfiltration related commands.
+- **Check `DeviceNetworkEvents`** for any signs of outbound connections to remote hosts that may be used for exfiltration purposes.
 
 ---
 
 ## Steps Taken
 
-1. Searched the `DeviceFileEvents` table for Mimikatz
+### 1. Searched the `DeviceFileEvents` table for Mimikatz
 
 Searched for any instances of Mimikatz being downloaded onto the device, and discovered that at '2025-03-01T22:37:51.0340907Z' the InitiatingProcessAccountName "cmh-cyber" had performed the download of "mimikatz-main.zip". At '2025-03-02T00:30:51.3210787Z' the "mimikatz-main.zip" file was extracted into 'C:\Users\cmh-cyber\AppData\Local\Temp'. After extraction, it appears that the executable "mimikatz.exe" was renamed to "mimi64.exe" at '2025-03-02T00:31:13.4321249Z' in an attempt to evade basic signature-based detections.
 
-Query used to locate event:
+**Query used to locate event:**
 
 ```kql
 DeviceFileEvents
@@ -50,11 +55,11 @@ DeviceFileEvents
 
 ---
 
-2. Searched the `DeviceProcessEvents` Table for Mimikatz execution
+### 2. Searched the `DeviceProcessEvents` Table for Mimikatz execution
 
 Searched for a `FileName` equal to the obfuscated Mimikatz executable "mimi64.exe" and a `ProcessCommandLine` containing options commonly used during Mimikatz command executions such as "sekurlsa::logonpasswords" and "privilege::debug". At '2025-02-27T18:00:34.050118Z', the user "cmh-cyber" successfully executed the Mimikatz command.
 
-Query used to locate events:
+**Query used to locate events:**
 
 ```kql
 DeviceProcessEvents
@@ -67,11 +72,11 @@ DeviceProcessEvents
 
 ---
 
-3. Searched the `DeviceProcessEvents` Table for exfiltration activity
+### 3. Searched the `DeviceProcessEvents` Table for exfiltration activity
 
 Searched for any potential exfiltration activity within the `ProcessCommandLine` field by suspected keywords and file extension types. At '2025-03-02T01:43:25.6836023Z', an attempt was to secure copy (scp) a file named "creddump.txt" to a remote host at '192.168.0.1' made by user "cmh-cyber".
 
-Query used to locate events:
+**Query used to locate events:**
 
 ```kql
 DeviceProcessEvents
@@ -84,11 +89,11 @@ DeviceProcessEvents
 
 ---
 
-4. Searched the `DeviceNetworkEvents` Table for exfiltration activity
+### 4. Searched the `DeviceNetworkEvents` Table for exfiltration activity
 
 Searched for network activity at '2025-03-02T01:43:25.6836023Z' to determine the result of the secure copy attempt that was made, and discovered that the connection had failed.
 
-Query used to locate event:
+**Query used to locate event:**
 
 ```kql
 DeviceNetworkEvents
@@ -101,11 +106,11 @@ DeviceNetworkEvents
 
 ---
 
-5. Search `DeviceProcessEvents` for any post-exfiltration activity
+### 5. Search `DeviceProcessEvents` for any post-exfiltration activity
 
 Searched for any activity after '2025-03-02T01:43:25.6836023Z' within the `ProcessCommandLine` field that would indicate the actor had made an attempt to clear their tracks post-exfiltration. At '2025-03-02T01:44:39.019939Z', we see three wevtutil commands being executed by user "cmh-cyber" to clear the Application, Security and System logs respectfully.
 
-Query used to locate events:
+***Query used to locate events:***
 
 ```kql
 DeviceProcessEvents
@@ -118,11 +123,11 @@ DeviceProcessEvents
 
 ---
 
-6. Search `DeviceFileEvents` for further post-exfiltration activity
+### 6. Search `DeviceFileEvents` for further post-exfiltration activity
 
 Searched for any evidence of file deletion after '2025-03-02T01:43:25.6836023Z'. At '2025-03-02T01:44:28.1926134Z', the file "ConsoleHost_history.txt" (which logs PowerShell command history on a per-user basis) was deleted by user "cmh-cyber", which suggests an attempt was made by the user to further cover their tracks. No other evidence was found at this time.
 
-Query used to locate events:
+**Query used to locate events:**
 
 ```kql
 DeviceFileEvents
@@ -139,30 +144,30 @@ DeviceFileEvents
 
 ## Chronological Events
 
-1. File Download - Mimikatz Installer
+### 1. File Download - Mimikatz Installer
    * Timestamp: 2025-03-01T22:37:51.0340907Z
    * Event: The user "cmh-cyber" downloaded a file named "mimikatz-master.zip" to the Downloads folder.
    * Action: File download detected.
    * File Path: C:\Users\cmh-cyber\Downloads\mimikatz-master.zip
   
-2. File Creation - Mimikatz Executable Extraction and Rename
+### 2. File Creation - Mimikatz Executable Extraction and Rename
    * Timestamp: 2025-03-02T00:30:51.3210787Z
    * Event: The user "cmh-cyber" extracted a file named "mimikatz-master.zip" to C:\Users\cmh-cyber\AppData\Local\Temp, and the executable mimikatz.exe was renamed to mimi64.exe.
    * Action: File creation detected.
    * File Path: C:\Users\cmh-cyber\AppData\Local\Temp\mimikatz\x64\mimi64.exe
   
-4. Process Execution - Mimikatz Execution
+### 3. Process Execution - Mimikatz Execution
    * Timestamp: 2025-02-27T18:00:34.050118Z
    * Event: The user "cmh-cyber" ran the "mimi64.exe" executable successfully, and dumped credentials from LSASS into a file named "creddump.txt"
    * Action: Process execution detected.
    * File Path: C:\Users\cmh-cyber\AppData\Local\Temp\creddump.txt
   
-5. Data Exfiltration - Secure Copy to Remote Host
+### 4. Data Exfiltration - Secure Copy to Remote Host
    * Timestamp: 2025-03-02T01:43:25.6836023Z
    * Event: The user "cmh-cyber" attempted to secure copy the file "creddump.txt" to a remote host located at "192.168.0.1", but the connection is determined to have failed.
    * Action: Data exfiltration detected.
 
-6. Anti-Forensics - Removal of Logs
+### 5. Anti-Forensics - Removal of Logs
    * Timestamp: 2025-03-02T01:43:25.6836023Z
    * Event: The user "cmh-cyber" performed anti-forensic activities by clearing logs through a sequence of "wevtutil cl ..." commands and the removal of "ConsoleHost_history.txt".
    * Action: Log and console history deletion detected.
