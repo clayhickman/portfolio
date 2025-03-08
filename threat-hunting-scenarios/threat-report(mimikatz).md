@@ -1,3 +1,19 @@
+```lua
+      .-.
+     (   )   Mimikatz — Purrr-loiner of Credentials
+      \ /
+      |=|
+      | |
+     /   \
+    / ___ \
+   | /   \ |
+   |  o o  |    "I can haz LSASS?"
+   (   ~   )
+    \ ~~~ /
+     `---'
+```
+
+
 # Threat Hunt Report (Credential Dumping with Mimikatz)
 **Unauthorized Execution of Mimikatz**
 
@@ -32,6 +48,7 @@ DeviceFileEvents
 
 <img width="1253" alt="CleanShot 2025-03-01 at 19 53 41@2x" src="https://github.com/user-attachments/assets/41a64901-980f-4505-83c6-1b5be772b280" />
 
+---
 
 2. Searched the `DeviceProcessEvents` Table for Mimikatz execution
 
@@ -48,6 +65,7 @@ DeviceProcessEvents
 
 <img width="1255" alt="CleanShot 2025-03-01 at 19 57 38@2x" src="https://github.com/user-attachments/assets/6c4f9413-331d-47aa-bcfd-0faa54a4e4f7" />
 
+---
 
 3. Searched the `DeviceProcessEvents` Table for exfiltration activity
 
@@ -64,6 +82,7 @@ DeviceProcessEvents
 
 <img width="1258" alt="CleanShot 2025-03-01 at 20 21 49@2x" src="https://github.com/user-attachments/assets/b824acfe-424a-4027-8d90-e085e6921e13" />
 
+---
 
 4. Searched the `DeviceNetworkEvents` Table for exfiltration activity
 
@@ -80,6 +99,7 @@ DeviceNetworkEvents
 
 <img width="1262" alt="CleanShot 2025-03-08 at 08 27 33@2x" src="https://github.com/user-attachments/assets/17eef2c5-99f6-421e-8057-1f9a275742cc" />
 
+---
 
 5. Search `DeviceProcessEvents` for any post-exfiltration activity
 
@@ -96,6 +116,7 @@ DeviceProcessEvents
 
 <img width="1260" alt="CleanShot 2025-03-02 at 12 52 15@2x" src="https://github.com/user-attachments/assets/40d92b2a-df74-4d5e-adda-a16ba7f8b404" />
 
+---
 
 6. Search `DeviceFileEvents` for further post-exfiltration activity
 
