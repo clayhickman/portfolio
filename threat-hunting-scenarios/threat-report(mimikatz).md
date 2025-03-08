@@ -38,7 +38,7 @@ During a routine security review, the SOC team received indicators that Mimikatz
 
 ### 1. Searched the `DeviceFileEvents` table for Mimikatz
 
-Searched for any instances of Mimikatz being downloaded onto the device, and discovered that at `2025-03-01T22:37:51.0340907Z` the InitiatingProcessAccountName "cmh-cyber" had performed the download of "mimikatz-main.zip". At `2025-03-02T00:30:51.3210787Z` the "mimikatz-main.zip" file was extracted into 'C:\Users\cmh-cyber\AppData\Local\Temp'. After extraction, it appears that the executable "mimikatz.exe" was renamed to "mimi64.exe" at `2025-03-02T00:31:13.4321249Z` in an attempt to evade basic signature-based detections.
+Searched for any instances of Mimikatz being downloaded onto the device, and discovered that at `2025-03-01T22:37:51.0340907Z` the user "cmh-cyber" had initiated the download of "mimikatz-main.zip". At `2025-03-02T00:30:51.3210787Z` the "mimikatz-main.zip" file was extracted into `C:\Users\cmh-cyber\AppData\Local\Temp`. After extraction, it appears that the "mimikatz.exe" executable was renamed to "mimi64.exe" at `2025-03-02T00:31:13.4321249Z` in an attempt to evade basic signature-based detections.
 
 **Query used to locate event:**
 
@@ -57,7 +57,7 @@ DeviceFileEvents
 
 ### 2. Searched the `DeviceProcessEvents` Table for Mimikatz execution
 
-Searched for a `FileName` equal to the obfuscated Mimikatz executable "mimi64.exe" and a `ProcessCommandLine` containing options commonly used during Mimikatz command executions such as "sekurlsa::logonpasswords" and "privilege::debug". At `2025-02-27T18:00:34.050118Z`, the user "cmh-cyber" successfully executed the Mimikatz command.
+Searched within the `FileName` field for a value equal to the obfuscated Mimikatz executable "mimi64.exe" and within the `ProcessCommandLine` field for values containing commonly used Mimikatz command options such as "sekurlsa::logonpasswords" and "privilege::debug". At `2025-02-27T18:00:34.050118Z`, the user "cmh-cyber" successfully executed the Mimikatz command.
 
 **Query used to locate events:**
 
@@ -125,7 +125,7 @@ DeviceProcessEvents
 
 ### 6. Search `DeviceFileEvents` for further post-exfiltration activity
 
-Searched for any evidence of file deletion after `2025-03-02T01:43:25.6836023Z`. At `2025-03-02T01:44:28.1926134Z`, the file "ConsoleHost_history.txt" (which logs PowerShell command history on a per-user basis) was deleted by user "cmh-cyber", which suggests an attempt was made by the user to further cover their tracks. No other evidence was found at this time.
+Searched for any evidence of file deletion after `2025-03-02T01:43:25.6836023Z`. At `2025-03-02T01:44:28.1926134Z`, the file `ConsoleHost_history.txt` (which logs PowerShell command history on a per-user basis) was deleted by user "cmh-cyber", which suggests an attempt was made by the user to further cover their tracks.
 
 **Query used to locate events:**
 
@@ -188,19 +188,19 @@ DeviceFileEvents
 
 ## Summary
 
-The user "cmh-cyber" on the "cmh-cyber-vm" device initiated and completed the download of Mimikatz. They proceeded to extact and rename the Mimikatz executable in an attempt to circumvent signature-based detections. After initial staging was completed, the user executed Mimikatz and dumped credentials from the LSASS into a file that they then failed to exfiltrate to a remote host. No futher attempts to exfiltrate the dumped credentials were detected, and the user seems to have changed course by focusing on clearing their tracks. Multiple commands were ran to clear logs and remove console history. It's unclear whether Mimikatz was deleted, obfuscated or left on the system for futher use at a later date.
+The user "cmh-cyber" on the "cmh-cyber-vm" device initiated and completed the download of Mimikatz. They proceeded to extact and rename the Mimikatz executable in an attempt to circumvent signature-based detections. After initial staging was completed, the user executed Mimikatz and dumped credentials from LSASS into a file that they then failed to exfiltrate to a remote host. No futher attempts to exfiltrate the dumped credentials were detected, and the user seems to have changed course by focusing on clearing their tracks. Multiple commands were ran to clear logs and remove console history. It's unclear whether Mimikatz was deleted, obfuscated or left on the system for futher use at a later date.
 
 ---
 
 ## Response Taken
-Mimikatz usage was confirmed on device "cmh-cyber-vm". The device was isolated, and the user's direct manager was notified.
+Mimikatz usage was confirmed on the "cmh-cyber-vm" device. The device was isolated, and the user's direct manager was notified for futher action.
 
 ---
 
 ## Created By:
 - **Author Name**: Clay Hickman
 - **Author Contact**: https://www.linkedin.com/in/clay-h-980ba5262
-- **Date**: August 31, 2024
+- **Date**: February 28, 2025
 
 ## Validated By:
 - **Reviewer Name**: 
@@ -217,4 +217,4 @@ Mimikatz usage was confirmed on device "cmh-cyber-vm". The device was isolated, 
 ## Revision History:
 | **Version** | **Changes**                   | **Date**         | **Modified By**   |
 |-------------|-------------------------------|------------------|-------------------|
-| 1.0         | Initial draft                  | `September  6, 2024`  | `Clay Hickman`   
+| 1.0         | Initial draft                  | `February  28, 2025`  | `Clay Hickman`   
