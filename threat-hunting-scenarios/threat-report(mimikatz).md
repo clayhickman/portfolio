@@ -7,9 +7,10 @@ During a routine security review, the SOC team received indicators that Mimikatz
 ---
 
 ## High-Level Mimikatz related IoC Discovery Plan:
-1. Check DeviceFileEvents for any mimikatz.exe or credential file events
-2. Check DeviceProcessEvents for any signs of Mimikatz installation or usage
-3. Check DeviceNetworkEvents for any signs of outgoing connections that may be exfiltrating extracted credentials to remote hosts
+1. Check DeviceFileEvents for any mimikatz related events
+2. Check DeviceProcessEvents for any signs of Mimikatz installation / execution, or exfiltration related commands.
+3. Check DeviceNetworkEvents for any signs of outbound connections to remote hosts that may be used for exfiltration purposes.
+
 ---
 
 ## Steps Taken
@@ -47,6 +48,7 @@ DeviceProcessEvents
 
 <img width="1255" alt="CleanShot 2025-03-01 at 19 57 38@2x" src="https://github.com/user-attachments/assets/6c4f9413-331d-47aa-bcfd-0faa54a4e4f7" />
 
+
 3. Searched the `DeviceProcessEvents` Table for exfiltration activity
 
 Searched for any potential exfiltration activity within the `ProcessCommandLine` field by suspected keywords and file extension types. At '2025-03-02T01:43:25.6836023Z', an attempt was to secure copy (scp) a file named "creddump.txt" to a remote host at '192.168.0.1' made by user "cmh-cyber".
@@ -61,6 +63,7 @@ DeviceProcessEvents
 ```
 
 <img width="1258" alt="CleanShot 2025-03-01 at 20 21 49@2x" src="https://github.com/user-attachments/assets/b824acfe-424a-4027-8d90-e085e6921e13" />
+
 
 4. Searched the `DeviceNetworkEvents` Table for exfiltration activity
 
@@ -77,6 +80,7 @@ DeviceNetworkEvents
 
 <img width="1262" alt="CleanShot 2025-03-08 at 08 27 33@2x" src="https://github.com/user-attachments/assets/17eef2c5-99f6-421e-8057-1f9a275742cc" />
 
+
 5. Search `DeviceProcessEvents` for any post-exfiltration activity
 
 Searched for any activity after '2025-03-02T01:43:25.6836023Z' within the `ProcessCommandLine` field that would indicate the actor had made an attempt to clear their tracks post-exfiltration. At '2025-03-02T01:44:39.019939Z', we see three wevtutil commands being executed by user "cmh-cyber" to clear the Application, Security and System logs respectfully.
@@ -91,6 +95,7 @@ DeviceProcessEvents
 ```
 
 <img width="1260" alt="CleanShot 2025-03-02 at 12 52 15@2x" src="https://github.com/user-attachments/assets/40d92b2a-df74-4d5e-adda-a16ba7f8b404" />
+
 
 6. Search `DeviceFileEvents` for further post-exfiltration activity
 
