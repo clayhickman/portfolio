@@ -1,5 +1,5 @@
 # Threat Event (Unauthorized Cryptominer Installation)
-**Malicious Cryptominer Deployment and Execution**
+**Malicious Cryptominer Installation and Use**
 
 ---
 
