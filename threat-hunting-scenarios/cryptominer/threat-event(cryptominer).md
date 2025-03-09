@@ -3,11 +3,6 @@
 
 ---
 
-## Reason for the Hunt
-A sudden spike in CPU and memory usage was observed on a Windows 10 endpoint in Azure. **Management** suspects illicit cryptomining and wants to proactively hunt for any cryptominer-related files or processes that may be running undetected.
-
----
-
 ## Steps the "Bad Actor" Took to Create Logs and IoCs:
 
 1. **Download Cryptominer Using Built-In Tools**  
