@@ -11,7 +11,7 @@ A sudden spike in CPU and memory usage was observed on a Windows 10 endpoint in 
 ## Steps the "Bad Actor" Took to Create Logs and IoCs:
 
 1. **Download Cryptominer Using Built-In Tools**  
-   - The attacker uses a legitimate Windows utility (e.g., `bitsadmin.exe`) to stealthily download a cryptominer binary (`miner.exe`) from a malicious URL (e.g., `hxxp://maliciousserver[.]com/miner.exe`) directly onto the VM.  
+   - The attacker uses a legitimate Windows utility (e.g., `bitsadmin.exe`) to stealthily download a cryptominer binary (`fake-miner.exe`) from a malicious URL (e.g., `https://github.com/clayhickman/portfolio/raw/refs/heads/main/threat-hunting-scenarios/cryptominer/fake-miner.exe`) directly onto the VM.  
    - This download can generate **DeviceFileEvents** logs.
 
 2. **Rename and Move the Cryptominer**  
@@ -39,6 +39,11 @@ A sudden spike in CPU and memory usage was observed on a Windows 10 endpoint in 
 
 6. **Cleanup and Evasion**  
    - The attacker may delete original files (`miner.exe`) or logs to evade detection, generating file deletion logs in **DeviceFileEvents**.
+     ```powershell
+     wevtutil cl Application
+     wevtutil cl Security
+     wevtutil cl System
+     ```
 
 ---
 
