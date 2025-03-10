@@ -12,8 +12,8 @@
 #include <string.h>
 
 #ifdef _WIN32
-#include <windows.h>
 #include <winsock2.h>
+#include <windows.h>
 #include <shlwapi.h>  // Needed for registry persistence
 #pragma comment(lib, "ws2_32.lib")  // Link against Windows Sockets API
 #pragma comment(lib, "Shlwapi.lib") // Link against Windows Shell API
