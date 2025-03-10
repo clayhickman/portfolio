@@ -62,6 +62,8 @@
 | **Info**            | [DeviceNetworkEvents Table Docs](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-devicenetworkevents-table) |
 | **Purpose**         | Detects mining pool connections from the cryptominer (`systemupdate.exe`).                            |
 
+| **Parameter**       | **Description**                                                                                       |
+|---------------------|-------------------------------------------------------------------------------------------------------|
 | **Name**            | DeviceRegistryEvents                                                                                  |
 | **Info**            | [DeviceRegistryEvents Table Docs](https://learn.microsoft.com/en-us/defender-xdr/advanced-hunting-deviceregistryevents-table) |
 | **Purpose**         | Monitors for Run key modifications if the attacker uses registry-based persistence.                   |
